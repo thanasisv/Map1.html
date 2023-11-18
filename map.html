@@ -1,37 +1,44 @@
-<script>
-  function initMap() {
-    var map = new google.maps.Map(document.getElementById('map'), {
-      center: {lat: 0, lng: 0},
-      zoom: 2
-    });
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KML Search</title>
+  <script src="https://thanasisv.github.io/kml/KML FOR NAVIGATOR.kml"></script>
+</head>
+<body>
 
-    var searchBox = new google.maps.places.SearchBox(document.getElementById('search-box'));
-    map.controls[google.maps.ControlPosition.TOP_LEFT].push(document.getElementById('search-box'));
+  <h1>KML Search</h1>
 
-    var kmlLayer = new google.maps.KmlLayer({
-      url: https://drive.google.com/file/d/1FlkQiVsFSP6bCRWxqJ578eDymuSRKR7p/view?usp=drivesdk,
-      map: map,
-      suppressInfoWindows: false
-    });
+  <label for="searchInput">Search KML:</label>
+  <input type="text" id="searchInput" placeholder="Enter name">
+  <button onclick="searchKML()">Search</button>
 
-    // Προσθήκη event listener για αναζήτηση όταν αλλάξει το περιεχόμενο του κουτιού αναζήτησης
-    searchBox.addListener('places_changed', function() {
-      var places = searchBox.getPlaces();
+  <div id="result"></div>
 
-      if (places.length == 0) {
-        return;
-      }
+  <script>
+    function searchKML() {
+      var searchValue = document.getElementById("searchInput").value;
+      var resultElement = document.getElementById("result");
 
-      // Φιλτράρισμα με βάση το επιλεγμένο μέρος και εμφάνιση των αποτελεσμάτων στο χάρτη
-      var bounds = new google.maps.LatLngBounds();
-      places.forEach(function(place) {
-        if (place.geometry.viewport) {
-          bounds.union(place.geometry.viewport);
-        } else {
-          bounds.extend(place.geometry.location);
-        }
-      });
-      map.fitBounds(bounds);
-    });
-  }
-</script>
+      // Assuming you have a KML file available
+      fetch('path/to/your/file.kml')
+        .then(response => response.text())
+        .then(kml => {
+          // Use Turf.js or other KML parsing method
+          // Apply your search logic
+          // For example, let's log the KML content
+          console.log(kml);
+
+          // Display result
+          resultElement.innerHTML = "KML content logged in console.";
+        })
+        .catch(error => {
+          console.error('Error fetching KML:', error);
+          resultElement.innerHTML = "Error fetching KML.";
+        });
+    }
+  </script>
+
+</body>
+</html>
