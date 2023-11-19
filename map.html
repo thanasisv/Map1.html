@@ -11,11 +11,9 @@
         center: {lat: 0, lng: 0},
         zoom: 2
       });
-    }
 
-    function loadKmlLayer(url) {
       var kmlLayer = new google.maps.KmlLayer({
-        url: url,
+        url: 'https://thanasisv.github.io/kml/KML%20FOR%20NAVIGATOR.kml',
         suppressInfoWindows: true,
         map: map
       });
@@ -30,29 +28,21 @@
     function searchKml() {
       var keyword = prompt('Εισάγετε λέξη-κλειδί για αναζήτηση:');
       if (keyword) {
-        var kmlUrl = 'https://thanasisv.github.io/kml/KML%20FOR%20NAVIGATOR.kml'; // Το URL του αρχείου KML
-        searchInKml(kmlUrl, keyword);
+        searchInKml(keyword);
       }
     }
 
-    function searchInKml(url, keyword) {
-      var kmlLayer = new google.maps.KmlLayer({
-        url: url,
-        suppressInfoWindows: true,
-        map: map
-      });
-
-      google.maps.event.addListenerOnce(kmlLayer, 'metadata_changed', function() {
-        var placemarks = kmlLayer.getMetadata().placemarks;
-        for (var i = 0; i < placemarks.length; i++) {
-          var placemark = placemarks[i];
-          if (placemark.name.toLowerCase().includes(keyword.toLowerCase())) {
-            // Αν το όνομα του στοιχείου περιλαμβάνει τη λέξη-κλειδί, εμφανίστε το
-            loadKmlLayer(url + '&target=' + placemark.id);
-            break; // Εμφάνιση μόνο του πρώτου στοιχείου που ταιριάζει
-          }
+    function searchInKml(keyword) {
+      var placemarks = map.data.features;
+      for (var i = 0; i < placemarks.length; i++) {
+        var placemark = placemarks[i];
+        if (placemark.getProperty('name').toLowerCase().includes(keyword.toLowerCase())) {
+          map.data.overrideStyle(placemark, {visible: true});
+          map.setCenter(placemark.getGeometry().get());
+          map.setZoom(10);
+          break; // Εμφάνιση μόνο του πρώτου στοιχείου που ταιριάζει
         }
-      });
+      }
     }
   </script>
 </head>
