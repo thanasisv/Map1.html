@@ -42,7 +42,7 @@
         map: map
       });
 
-      google.maps.event.addListener(kmlLayer, 'metadata_changed', function() {
+      google.maps.event.addListenerOnce(kmlLayer, 'metadata_changed', function() {
         var placemarks = kmlLayer.getMetadata().placemarks;
         for (var i = 0; i < placemarks.length; i++) {
           var placemark = placemarks[i];
