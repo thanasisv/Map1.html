@@ -33,16 +33,23 @@
     }
 
     function searchInKml(keyword) {
-      var placemarks = map.data.features;
-      for (var i = 0; i < placemarks.length; i++) {
-        var placemark = placemarks[i];
-        if (placemark.getProperty('name').toLowerCase().includes(keyword.toLowerCase())) {
-          map.data.overrideStyle(placemark, {visible: true});
-          map.setCenter(placemark.getGeometry().get());
-          map.setZoom(10);
-          break; // Εμφάνιση μόνο του πρώτου στοιχείου που ταιριάζει
-        }
+      // Ελέγχουμε αν το layer υπάρχει
+      if (!map.data) {
+        console.error('Δεν υπάρχουν features στο χάρτη.');
+        return;
       }
+
+      map.data.forEach(function(feature) {
+        // Ελέγχουμε αν υπάρχει ιδιοκτησία 'name' και αν περιέχει το keyword
+        if (feature.getProperty('name') && feature.getProperty('name').toLowerCase().includes(keyword.toLowerCase())) {
+          // Εμφανίζουμε το feature
+          map.data.overrideStyle(feature, {visible: true});
+          // Ορίζουμε το κέντρο του χάρτη στη θέση του feature και εφαρμόζουμε zoom
+          map.setCenter(feature.getGeometry().get());
+          map.setZoom(10);
+          return; // Εξόδος από το forEach όταν βρεθεί το πρώτο match
+        }
+      });
     }
   </script>
 </head>
