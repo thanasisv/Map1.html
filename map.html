@@ -1,60 +1,64 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KML Search</title>
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAIpW0xPz54Mq3F8cpmSox7QbTD6vGRj90&libraries=places"></script>
-</head>
-<body>
-
-  <h1>KML Search</h1>
-
-  <label for="searchInput">Search KML:</label>
-  <input type="text" id="searchInput" placeholder="Enter name">
-  <button onclick="searchKML()">Search</button>
-
-  <div id="map" style="height: 400px;"></div>
-
+  <title>Χάρτης με Αναζήτηση από Αρχείο KML</title>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAIpW0xPz54Mq3F8cpmSox7QbTD6vGRj90&callback=initMap" async defer></script>
   <script>
     var map;
 
     function initMap() {
       map = new google.maps.Map(document.getElementById('map'), {
-        center: {lat: -34.397, lng: 150.644},
-        zoom: 8
+        center: {lat: 0, lng: 0},
+        zoom: 2
       });
     }
 
-    function searchKML() {
-      var searchValue = document.getElementById("searchInput").value;
-
-      // Load KML layer
+    function loadKmlLayer(url) {
       var kmlLayer = new google.maps.KmlLayer({
-        url: 'https://thanasisv.github.io/kml/KML FOR NAVIGATOR.kml',
-        map: map,
+        url: url,
+        suppressInfoWindows: true,
+        map: map
       });
 
-      // Set up event listener for when KML layer is ready
-      google.maps.event.addListener(kmlLayer, 'status_changed', function () {
-        if (kmlLayer.getStatus() !== 'OK') {
-          alert('Error loading KML file.');
-          return;
+      kmlLayer.addListener('click', function(event) {
+        var content = event.featureData.infoWindowHtml;
+        var testimonial = document.getElementById('capture');
+        testimonial.innerHTML = content;
+      });
+    }
+
+    function searchKml() {
+      var keyword = prompt('Εισάγετε λέξη-κλειδί για αναζήτηση:');
+      if (keyword) {
+        var kmlUrl = 'https://thanasisv.github.io/kml/KML%20FOR%20NAVIGATOR.kml'; // Το URL του αρχείου KML
+        searchInKml(kmlUrl, keyword);
+      }
+    }
+
+    function searchInKml(url, keyword) {
+      var kmlLayer = new google.maps.KmlLayer({
+        url: url,
+        suppressInfoWindows: true,
+        map: map
+      });
+
+      google.maps.event.addListener(kmlLayer, 'metadata_changed', function() {
+        var placemarks = kmlLayer.getMetadata().placemarks;
+        for (var i = 0; i < placemarks.length; i++) {
+          var placemark = placemarks[i];
+          if (placemark.name.toLowerCase().includes(keyword.toLowerCase())) {
+            // Αν το όνομα του στοιχείου περιλαμβάνει τη λέξη-κλειδί, εμφανίστε το
+            loadKmlLayer(url + '&target=' + placemark.id);
+            break; // Εμφάνιση μόνο του πρώτου στοιχείου που ταιριάζει
+          }
         }
-
-        // Perform your search logic here using the loaded KML layer
-        // For example, zoom to the KML layer
-        map.fitBounds(kmlLayer.getDefaultViewport());
-
-        // Display result
-        alert("KML layer loaded. Zoomed to fit.");
       });
     }
   </script>
-
-  <script async defer
-  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC2x0lwPO_EWcaN2Q1Z3mzgVdY1pIZpubw&libraries=places&callback=initMap">
-  </script>
-
+</head>
+<body>
+  <div id="map" style="height: 500px;"></div>
+  <button onclick="searchKml()">Αναζήτηση</button>
+  <div id="capture"></div>
 </body>
 </html>
